@@ -1,5 +1,60 @@
 <?php
+session_start();
+include "functions/connect.php";
 
+
+if (isset($_POST['login'])) {
+  // print_r($_POST);
+  // die;
+
+  $username = $_POST['username'];
+  $password = md5($_POST['password']);
+
+  $query = "SELECT * FROM users WHERE name='$username' && password='$password'";
+  $hasil = mysqli_query($koneksi, $query);
+
+
+  if (mysqli_num_rows($hasil) == 0) {
+    $err = "
+		<div class='row' style='margin-top: 15px';>
+	       <div class='col-md-12'>
+	        	<div class='box box-solid bg-red'>
+	        		<div class='box-header'>
+	        			<h3 class='box-title'>Login Gagal!</h3>
+	        		</div>
+	        		<div class='box-body'>
+	        			<p>Username atau password yang anda masukan salah.</p>
+	        		</div>
+			    </div>
+			 </div>
+		 </div>
+	</div>";
+  } else {
+
+    $row = mysqli_fetch_array($hasil);
+
+    $_SESSION['username'] = $row['name'];
+    $User = $_SESSION['username'];
+    $_SESSION['role_id'] = $row['role_id'];
+
+    if ($row['role_id'] == "1") {
+      $_SESSION['login'] = true;
+      header("location: views/superuser");
+    } else if ($row['role_id'] == "2") {
+      $_SESSION['login'] = true;
+      header("location: views/operator");
+    } else if ($row['role_id'] == "3") {
+      $_SESSION['login'] = true;
+      header("location: views/spv_ops");
+    } else if ($row['role_id'] == "4") {
+      $_SESSION['login'] = true;
+      header("location: views/mekanik");
+    }
+  }
+
+
+  // redirect
+}
 ?>
 
 <!DOCTYPE html>
@@ -30,9 +85,9 @@
       <div class="card-body">
         <p class="login-box-msg">Sign in to start your session</p>
 
-        <form action="index3.html" method="post">
+        <form action="" method="post">
           <div class="input-group mb-3">
-            <input type="email" class="form-control" placeholder="Email">
+            <input type="username" class="form-control" name="username" placeholder="username">
             <div class="input-group-append">
               <div class="input-group-text">
                 <span class="fas fa-envelope"></span>
@@ -40,7 +95,7 @@
             </div>
           </div>
           <div class="input-group mb-3">
-            <input type="password" class="form-control" placeholder="Password">
+            <input type="password" class="form-control" name="password" placeholder="Password">
             <div class="input-group-append">
               <div class="input-group-text">
                 <span class="fas fa-lock"></span>
@@ -58,7 +113,7 @@
             </div>
             <!-- /.col -->
             <div class="col-4">
-              <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+              <button type="submit" name="login" class="btn btn-primary btn-block">Sign In</button>
             </div>
             <!-- /.col -->
           </div>
